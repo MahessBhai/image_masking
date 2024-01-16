@@ -53,9 +53,22 @@ if __name__=="main":
 
     for filename in os.listdir(path):
         if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
+            
+            # # if there is one object in the frame use this  
             image_path = os.path.join(path, filename)
             frame11 = cv2.imread(image_path)
 
             crop_img = frame11
             #cv2.imwrite("{}_crop_{}.jpeg".format(filename,i),crop_img)
             invert(crop_img, filename)
+
+
+
+            # # for multiple objects in the original image, crop the required object using a object detection algorithm and give input x,y,w,h            
+            # detector =   #TargetDetection(yolo_path=path_to_yolo, model_path=path_to_model, image_path=image_path)
+            # datt = detector() # list of x,y,w,h coordinates of multiple detected objects
+            # print(datt)
+            # for i in range(len(datt)):
+            #     crop_img = frame11[datt[i][0]:datt[i][1], datt[i][2]:datt[i][3]]
+            #     #cv2.imwrite("{}_crop_{}.jpeg".format(filename,i),crop_img)
+            #     invert(i,crop_img, filename)
