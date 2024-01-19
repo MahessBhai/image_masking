@@ -1,0 +1,67 @@
+import numpy as np
+import cv2
+import os
+from sklearn.cluster import KMeans
+from warnings import simplefilter
+simplefilter(action='ignore', category=FutureWarning)
+
+
+def kmeans_categorize(image,filename, i=0):
+
+    pixels = image.reshape((-1, 3))
+
+    num_clusters = 2
+
+    kmeans = KMeans(n_clusters=num_clusters)
+    labels = kmeans.fit_predict(pixels)
+
+    centers = kmeans.cluster_centers_
+    segmented_image = centers[labels].reshape(image.shape)
+    cv2.imwrite("loda\Segmented_Image_{}_{}.jpeg".format(filename,i), segmented_image.astype(np.uint8))
+
+    kmeans_mask(i=i,image=image, filename=filename,labels=labels,centers=centers)
+
+def kmeans_mask(i, image, filename, labels, centers):
+    binary_images = []
+    for category_idx in range(centers.shape[0]):
+        category_mask = np.zeros_like(labels, dtype=np.uint8)
+        mask = labels == category_idx
+        category_mask[mask] = 255
+        category_mask = category_mask.reshape(image.shape[:-1])
+        smoothed_image = smooth_image(category_mask)
+        binary_images.append(smoothed_image)
+    for idx, inverted_image in enumerate(binary_images):
+            cv2.imwrite("inverts\degmented_then_{}Inverted Image {} - Category {}.jpeg".format(filename, i, idx), inverted_image)
+
+def smooth_image(image):
+    # Apply Gaussian blur to smooth the image
+    blurred_image = cv2.GaussianBlur(image, (5, 5), 0)
+    return blurred_image
+
+
+if __name__=="main":
+
+    #path to directry with images
+    path = r"path"
+    
+
+    for filename in os.listdir(path):
+        if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
+            
+            # # if there is one object in the frame use this  
+            image_path = os.path.join(path, filename)
+            frame11 = cv2.imread(image_path)
+
+            crop_img = frame11
+            #cv2.imwrite("{}_crop_{}.jpeg".format(filename,i),crop_img)
+            kmeans_categorize(img=crop_img, filename=filename)
+
+
+            # # for multiple objects in the original image, crop the required object using a object detection algorithm and give input x,y,w,h            
+            # detector =   #TargetDetection(yolo_path=path_to_yolo, model_path=path_to_model, image_path=image_path)
+            # datt = detector() # list of x,y,w,h coordinates of multiple detected objects
+            # print(datt)
+            # for i in range(len(datt)):
+            #     crop_img = frame11[datt[i][0]:datt[i][1], datt[i][2]:datt[i][3]]
+            #     #cv2.imwrite("{}_crop_{}.jpeg".format(filename,i),crop_img)
+            #     kmeans_categorize(img=crop_img, filename=filename,i)
