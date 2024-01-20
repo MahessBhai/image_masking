@@ -10,7 +10,7 @@ def kmeans_categorize(image,filename, i=0):
 
     pixels = image.reshape((-1, 3))
 
-    num_clusters = 2
+    num_clusters = 5 #edit based on size of image and numbe rof unique colours needed
 
     kmeans = KMeans(n_clusters=num_clusters)
     labels = kmeans.fit_predict(pixels)
